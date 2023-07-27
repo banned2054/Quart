@@ -9,6 +9,7 @@ logger = setup_logger(__name__, 'log', config.get('TZ'))
 def GetBangumiUrlFromMikan(html_str: str):
     try:
         tree = html.fromstring(html_str)
+        a_tag = tree.xpath('//p[@class="bangumi-info"]')
         a_tag = tree.xpath('//p[@class="bangumi-info"]/a[contains(@href, "bgm.tv")]')[0]
         href = a_tag.get('href')
         logger.info(f"Get bangumi url from mikan page.{href}")
@@ -22,10 +23,10 @@ def GetBangumiUrlFromMikan(html_str: str):
 def GetAnimeHomeUrlFromMikan(html_str: str):
     try:
         tree = html.fromstring(html_str)
-        a_tag = tree.xpath('//p[@class="bangumi-info"]/a')[0]
+        a_tag = tree.xpath('//p[@class="bangumi-title"]/a')[0]
         href = a_tag.get('href')
-        logger.info(f"Get anime home url from mikan page.{href}")
-        return href
+        logger.info(f"Get anime home url from mikan page.https://mikanani.me{href}")
+        return f"https://mikanani.me{href}"
     except Exception as e:
         error_str = str(e)
         logger.error(f"Try to get anime home url from mikan page failed.")
