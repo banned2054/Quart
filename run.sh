@@ -12,4 +12,4 @@ echo "{
     \"TZ\": \"${TZ:-Asia/ShangHai}\"
 }" >data/config.json
 
-python main.py
+python3 main.py
