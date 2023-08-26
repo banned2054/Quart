@@ -5,6 +5,6 @@ from datetime import date
 @dataclass
 class BangumiSubjectInfo:
     id: int
-    image: str
+    image_url: str
     cn_name: str
     pub_date: date

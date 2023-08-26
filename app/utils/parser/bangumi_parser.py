@@ -1,6 +1,8 @@
 import json
+from datetime import datetime
 
 from app import config
+from app.models.bangumi.bangumi_subject_info import BangumiSubjectInfo
 from app.utils.log_utils import SetUpLogger
 from app.utils.net_utils import fetch
 
@@ -24,12 +26,12 @@ async def get_subject_info(subject_id: int):
     }
     url = f"https://api.bgm.tv/v0/subjects/{subject_id}"
     text = await fetch(url, headers)
-    subject_dict = json.load(text)
+
+    subject_dict = json.loads(text[9:])
 
     image_url = get_image_url(subject_dict['images'])
     cn_name = subject_dict['name_cn']
-    pub_date = subject_dict['infobox'][3]['value']
-    print(image_url)
-    print(cn_name)
-    print(pub_date)
-    # subject_info = BangumiSubjectInfo(subject_id,)
+    pub_date = datetime.strptime(subject_dict['infobox'][3]['value'], "%Y年%m月%d日").date()
+
+    subject_info = BangumiSubjectInfo(subject_id, image_url, cn_name, pub_date)
+    print(subject_info)
