@@ -3,6 +3,8 @@ import os
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 
+from app import config
+
 
 class TimeZoneFilter(logging.Filter):
     def __init__(self, tz):
@@ -15,9 +17,9 @@ class TimeZoneFilter(logging.Filter):
 
 
 # Set up the logger
-def setup_logger(logger_name, log_dir, tz, loglevel = logging.INFO):
+def SetUpLogger(logger_name, loglevel = logging.INFO):
     current_time = datetime.now()
-    logfile = os.path.join(log_dir, f"{current_time.strftime('%Y-%m-%d')}.log")
+    logfile = os.path.join('log', f"{current_time.strftime('%Y-%m-%d')}.log")
 
     logger = logging.getLogger(logger_name)  # Change here
     logger.setLevel(loglevel)
@@ -34,7 +36,7 @@ def setup_logger(logger_name, log_dir, tz, loglevel = logging.INFO):
     c_handler.setFormatter(c_format)
     f_handler.setFormatter(f_format)
 
-    tz_filter = TimeZoneFilter(tz)
+    tz_filter = TimeZoneFilter(config.get("TZ"))
     logger.addFilter(tz_filter)
 
     # Add handlers to the logger

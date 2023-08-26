@@ -1,9 +1,8 @@
 from lxml import html
 
-from app import config
-from app.utils.log_utils import setup_logger
+from app.utils.log_utils import SetUpLogger
 
-logger = setup_logger(__name__, 'log', config.get('TZ'))
+logger = SetUpLogger(__name__)
 
 
 def GetBangumiUrlFromMikan(html_str: str):

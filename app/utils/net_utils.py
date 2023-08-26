@@ -3,10 +3,9 @@ from urllib.parse import urlparse
 
 import aiohttp
 
-from app import config
-from app.utils.log_utils import setup_logger
+from app.utils.log_utils import SetUpLogger
 
-logger = setup_logger(__name__, 'log', config.get('TZ'))
+logger = SetUpLogger(__name__)
 
 
 async def download_file(url, dir_path, proxy = None, retries = 3, timeout = 10):
@@ -37,11 +36,11 @@ async def download_file(url, dir_path, proxy = None, retries = 3, timeout = 10):
                 return f"Error: Download file failed, error: {error_str}"
 
 
-async def fetch(url, proxy = None, retries = 3, timeout = 10):
+async def fetch(url, headers = None, proxy = None, retries = 3, timeout = 10):
     clientTimeout = aiohttp.ClientTimeout(total = timeout)
     async with aiohttp.ClientSession(timeout = clientTimeout) as session:
         try:
-            async with session.get(url, proxy = proxy, ssl = False) as resp:
+            async with session.get(url, headers = headers, proxy = proxy, ssl = False) as resp:
                 if resp.status == 200:
                     text = await resp.text()
                     logger.info(f"Fetch {url} success.")
@@ -51,7 +50,7 @@ async def fetch(url, proxy = None, retries = 3, timeout = 10):
         except Exception as e:
             if retries > 0:
                 logger.error(f"Failed to fetch {url}, try again.")
-                return await fetch(url, proxy, retries - 1, timeout)
+                return await fetch(url, headers, proxy, retries - 1, timeout)
             else:
                 error_str = str(e)
                 logger.error(f"Failed to fetch {url}, error: {error_str}")
