@@ -26,7 +26,7 @@ def SetUpLogger(logger_name, loglevel = logging.INFO):
 
     # Create handlers
     c_handler = logging.StreamHandler()
-    f_handler = TimedRotatingFileHandler(logfile, when = 'midnight')
+    f_handler = TimedRotatingFileHandler(logfile, when = 'midnight', encoding = 'utf-8')  # Added encoding='utf-8'
     c_handler.setLevel(loglevel)
     f_handler.setLevel(loglevel)
 

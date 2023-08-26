@@ -34,4 +34,5 @@ async def get_subject_info(subject_id: int):
     pub_date = datetime.strptime(subject_dict['infobox'][3]['value'], "%Y年%m月%d日").date()
 
     subject_info = BangumiSubjectInfo(subject_id, image_url, cn_name, pub_date)
-    print(subject_info)
+    logger.info(f'Get anime info, subject id:{subject_id}, cn_name:{cn_name}, pub_date:{pub_date}')
+    return subject_info
