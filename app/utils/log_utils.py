@@ -36,7 +36,7 @@ def SetUpLogger(logger_name, loglevel = logging.INFO):
     c_handler.setFormatter(c_format)
     f_handler.setFormatter(f_format)
 
-    tz_filter = TimeZoneFilter(config.get("TZ"))
+    tz_filter = TimeZoneFilter(config.get_config("TZ"))
     logger.addFilter(tz_filter)
 
     # Add handlers to the logger

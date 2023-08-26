@@ -10,7 +10,7 @@ def GetBangumiUrlFromMikan(html_str: str):
         tree = html.fromstring(html_str)
         a_tag = tree.xpath('//p[@class="bangumi-info"]')
         a_tag = tree.xpath('//p[@class="bangumi-info"]/a[contains(@href, "bgm.tv")]')[0]
-        href = a_tag.get('href')
+        href = a_tag.get_config('href')
         logger.info(f"Get bangumi url from mikan page.{href}")
         return f"Success:{href}"
     except Exception as e:
@@ -23,7 +23,7 @@ def GetAnimeHomeUrlFromMikan(html_str: str):
     try:
         tree = html.fromstring(html_str)
         a_tag = tree.xpath('//p[@class="bangumi-title"]/a')[0]
-        href = a_tag.get('href')
+        href = a_tag.get_config('href')
         logger.info(f"Get anime home url from mikan page.https://mikanani.me{href}")
         return f"https://mikanani.me{href}"
     except Exception as e:
