@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime
+from datetime import datetime
 
 from app import config
 from app.models.bangumi.bangumi_subject_info import BangumiSubjectInfo, BangumiType
@@ -11,8 +11,9 @@ logger = SetUpLogger(__name__)
 
 def get_image_url(data_dict):
     """
-    获取bangumi对应的图片信息
+    获取bangumi对应的封面地址，优先度分别为common>medium>large>small>grid
     :param dict data_dict: 转换成dict格式的bangumi api返回的json
+    :return: 返回封面的地址
     """
     keys_order = ["common", "medium", "large", "small", "grid"]
     for key in keys_order:
@@ -25,7 +26,7 @@ async def get_subject_info(subject_id: int):
     """
     返回对应的bangumi的信息
     :param int subject_id:对应动画/电视剧的subject id
-    :return:
+    :return:返回BangumiSubjectInfo格式的结果
     """
     headers = {
         'User-Agent'   : config.get_setting('User-Agent'),
