@@ -8,7 +8,6 @@ logger = SetUpLogger(__name__)
 def GetBangumiUrlFromMikan(html_str: str):
     try:
         tree = html.fromstring(html_str)
-        a_tag = tree.xpath('//p[@class="bangumi-info"]')
         a_tag = tree.xpath('//p[@class="bangumi-info"]/a[contains(@href, "bgm.tv")]')[0]
         href = a_tag.get_config('href')
         logger.info(f"Get bangumi url from mikan page.{href}")

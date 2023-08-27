@@ -5,13 +5,14 @@ import sqlite3
 class AnimeTable:
     @staticmethod
     def create_mikan_table_if_not_exists():
-        print('create')
         conn = sqlite3.connect('data/anime.sqlite')
         cursor = conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS mikan_info (
-                mikan_url varchar PRIMARY KEY,
-                bangumi_id INTEGER
+            create table if not exists mikan_info (
+                mikan_url  varchar
+                    constraint mikan_url
+                        primary key,
+                bangumi_id integer
             )
         ''')
         conn.commit()
@@ -29,4 +30,28 @@ class AnimeTable:
             VALUES (?, ?)
         ''', (mikan_url, bangumi_id))
         conn.commit()
+        conn.close()
+
+    @staticmethod
+    def find_id_from_mikan_data(mikan_url: str):
+        database_path = 'data/anime.sql'
+        if not os.path.isfile(database_path):
+            AnimeTable.create_mikan_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                select * from mikan_info where mikan_url=?
+            ''', (mikan_url,))
+        conn.close()
+
+    @staticmethod
+    def find_url_from_mikan_data(bangumi_id: int):
+        database_path = 'data/anime.sql'
+        if not os.path.isfile(database_path):
+            AnimeTable.create_mikan_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                select * from mikan_info where bangumi_id=?
+            ''', (bangumi_id,))
         conn.close()
