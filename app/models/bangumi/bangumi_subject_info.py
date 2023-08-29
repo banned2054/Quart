@@ -15,3 +15,4 @@ class BangumiSubjectInfo:
     cn_name: str
     pub_date: date
     now_type: BangumiType
+    episodes: str
