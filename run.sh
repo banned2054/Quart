@@ -9,7 +9,8 @@ echo "{
     \"download_path\": \"${DOWNLOAD_PATH:-/downloads}\",
     \"mikan_rss_url\": \"${mikan_rss_url}\",
     \"proxy_url\": \"${proxy_url:-}\",
-    \"TZ\": \"${TZ:-Asia/ShangHai}\"
+    \"TZ\": \"${TZ:-Asia/ShangHai}\",
+    \"IntervalTimeToRss\":\"${IntervalTimeToRss:-300}\"
 }" >data/config.json
 
 python3 main.py
