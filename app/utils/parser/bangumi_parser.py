@@ -34,9 +34,9 @@ async def get_episode_list(subject_id: int):
         'Cookie'       : config.get_setting('Cookie')
     }
     url = f"https://api.bgm.tv/v0/episodes?subject_id={subject_id}"
-    text = await fetch(url, headers)
-    if text.startswith('Success'):
-        subject_dict = json.loads(text[9:])
+    response = await fetch(url, headers)
+    if response[0]:
+        subject_dict = json.loads(response[1])
         data_list = subject_dict['data']
         episode_list = ''
         for da in data_list:
@@ -44,9 +44,9 @@ async def get_episode_list(subject_id: int):
                 episode_list = episode_list + ','
             episode_list += str(da['sort'])
         logger.info(f'Get anime episodes:[{episode_list}]')
-        return f'Success: {episode_list}'
+        return True, f'{episode_list}'
     else:
-        return text
+        return response
 
 
 async def get_subject_info(subject_id: int):
@@ -61,19 +61,17 @@ async def get_subject_info(subject_id: int):
         'Cookie'       : config.get_setting('Cookie')
     }
     url = f"https://api.bgm.tv/v0/subjects/{subject_id}"
-    text = await fetch(url, headers)
-    if text.startswith('Success'):
-        subject_dict = json.loads(text[9:])
+    response = await fetch(url, headers)
+    if response[0]:
+        subject_dict = json.loads(response[1])
         image_url = get_image_url(subject_dict['images'])
         cn_name = subject_dict['name_cn']
         pub_date = datetime.strptime(subject_dict['infobox'][3]['value'], "%Y年%m月%d日").date()
         anime_type = BangumiType(subject_dict['type'])
         episodes = await get_episode_list(subject_id)
-        if episodes.startswith('Success'):
-            episodes = episodes[9:]
-        else:
-            episodes = ''
-        subject_info = BangumiSubjectInfo(subject_id, image_url, cn_name, pub_date, anime_type, episodes)
+        if not episodes[0]:
+            episodes[1] = ''
+        subject_info = BangumiSubjectInfo(subject_id, image_url, cn_name, pub_date, anime_type, episodes[1])
         logger.info(f'Get anime info, subject id:{subject_id}, cn_name:{cn_name}, pub_date:{pub_date}')
         return subject_info
     else:

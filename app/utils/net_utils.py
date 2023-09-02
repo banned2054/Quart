@@ -33,7 +33,7 @@ async def download_file(url, dir_path, retries = 3, timeout = 10):
                                 break
                             f.write(chunk)
                     logger.info(f"Download {url} success, file path: {file_path}.")
-                    return f"Success: {file_path}"
+                    return True, f"{file_path}"
                 else:
                     raise Exception(f"Cannot download file, status code: {resp.status}")
         except Exception as e:
@@ -43,7 +43,7 @@ async def download_file(url, dir_path, retries = 3, timeout = 10):
             else:
                 error_str = str(e)
                 logger.error(f"Failed to download {url}, error: {error_str}")
-                return f"Error: Download file failed, error: {error_str}"
+                return False, f"Download file failed, error: {error_str}"
 
 
 async def fetch(url, headers = None, retries = 3, timeout = 10):
@@ -63,7 +63,7 @@ async def fetch(url, headers = None, retries = 3, timeout = 10):
                 if resp.status == 200:
                     text = await resp.text()
                     logger.info(f"Fetch {url} success.")
-                    return f"Success: {text}"
+                    return True, f"{text}"
                 else:
                     raise Exception(f"Cannot fetch data, status code: {resp.status}")
         except Exception as e:
@@ -73,4 +73,4 @@ async def fetch(url, headers = None, retries = 3, timeout = 10):
             else:
                 error_str = str(e)
                 logger.error(f"Failed to fetch {url}, error: {error_str}")
-                return f"Error: Fetch data failed, error: {error_str}"
+                return False, f"Fetch data failed, error: {error_str}"

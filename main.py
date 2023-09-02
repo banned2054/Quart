@@ -24,11 +24,9 @@ async def infinite_loop_coroutine():
 
 
 if __name__ == '__main__':
-    # # 创建并启动一个新线程来运行 thread_function
-    # thread = threading.Thread(target = thread_function)
-    # thread.start()
-    #
-    # # 在主线程中运行 Sanic 服务器
-    # sanic_server.run(host = "0.0.0.0", port = 8000)
-    flag = is_torrent_complete_and_matching('550007245ab73e8b7fdf8a852abbad68de22a800', '[Anime]白圣女与黑牧师 E06')
-    print(flag)
+    # 创建并启动一个新线程来运行 thread_function
+    thread = threading.Thread(target = thread_function)
+    thread.start()
+
+    # 在主线程中运行 Sanic 服务器
+    sanic_server.run(host = "0.0.0.0", port = 8000)
