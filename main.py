@@ -1,16 +1,7 @@
 import asyncio
 import threading
-from sanic import Sanic
-from sanic.response import json
-
+from app.utils.sanic import sanic_server
 from app import config
-
-sanic_server = Sanic("MyApp")
-
-
-@sanic_server.route("/")
-async def test(request):
-    return json({"hello": "world"})
 
 
 def thread_function():

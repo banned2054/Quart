@@ -1,0 +1,19 @@
+import sanic
+from sanic import json
+
+from app import config
+
+
+async def change_rss_url(request: sanic.request.Request):
+    """
+    修改rss订阅链接
+    :param request: body里有一个包含"new_rss_url"的json的request
+    :return:
+    """
+    data = request.json
+    new_rss_url = data.get("new_rss_url", None)
+
+    if not new_rss_url:
+        return json({"error": "Missing 'new_rss_url' parameter"}, status = 400)
+    config.set_config("mikan_rss_url", new_rss_url)
+    return json("success")
