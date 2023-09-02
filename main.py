@@ -1,5 +1,9 @@
 import asyncio
 import threading
+
+import qbittorrentapi
+
+from app.utils.qbittorrent_utils import is_torrent_complete_and_matching
 from app.controller.sanic import sanic_server
 from app import config
 
@@ -20,9 +24,11 @@ async def infinite_loop_coroutine():
 
 
 if __name__ == '__main__':
-    # 创建并启动一个新线程来运行 thread_function
-    thread = threading.Thread(target = thread_function)
-    thread.start()
-
-    # 在主线程中运行 Sanic 服务器
-    sanic_server.run(host = "0.0.0.0", port = 8000)
+    # # 创建并启动一个新线程来运行 thread_function
+    # thread = threading.Thread(target = thread_function)
+    # thread.start()
+    #
+    # # 在主线程中运行 Sanic 服务器
+    # sanic_server.run(host = "0.0.0.0", port = 8000)
+    flag = is_torrent_complete_and_matching('550007245ab73e8b7fdf8a852abbad68de22a800', '[Anime]白圣女与黑牧师 E06')
+    print(flag)
