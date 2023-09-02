@@ -1,6 +1,6 @@
 import asyncio
 import threading
-from app.utils.sanic import sanic_server
+from app.controller.sanic import sanic_server
 from app import config
 
 
