@@ -1,6 +1,8 @@
+import datetime
 import sqlite3
 
 from app.models.sql import create_table_if_not_exists
+from app.utils.time_utils import str_to_datetime
 
 
 class RssItemTable:
@@ -16,6 +18,8 @@ class RssItemTable:
                                 item_name varchar
                                     constraint mikan_url
                                         primary key,
+                                mikan_url varchar
+                                torrent_hash varchar,
                                 bangumi_id integer,
                                 episode integer,
                                 pub_date varchar,
@@ -25,16 +29,24 @@ class RssItemTable:
         create_table_if_not_exists(table_schema)
 
     @staticmethod
-    def insert_rss_data(item_name, bangumi_id, episode, pub_date):
+    def insert_rss_data(item_name, mikan_url, bangumi_id, episode, pub_date):
         database_path = 'data/anime.sql'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
-                                insert into rss_item (item_name, bangumi_id, episode, pub_date, download_finish)
-                                values (?, ?, ?, ?, ?)
+                                insert into rss_item (
+                                                        item_name, 
+                                                        mikan_url, 
+                                                        torrent_hash, 
+                                                        bangumi_id, 
+                                                        episode, 
+                                                        pub_date, 
+                                                        download_finish
+                                                    )
+                                values (?, ?, ?, ?, ?, ?, ?)
                             ''',
-                       (item_name, bangumi_id, episode, pub_date, 0))
+                       (item_name, mikan_url, "", bangumi_id, episode, pub_date, 0))
         conn.commit()
         conn.close()
 
@@ -52,3 +64,64 @@ class RssItemTable:
         conn.commit()
         conn.close()
         return results
+
+    @staticmethod
+    def get_latest_pub_time():
+        """
+        查询rss的item里最晚的pub_date
+        :return: datetime格式的pub_date
+        """
+        database_path = 'data/anime.sql'
+        RssItemTable.create_rss_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                            select pub_date from rss_item ORDER BY pub_date DESC
+                        ''',
+                       )
+        results = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        if len(results) > 0:
+            time_datetime = str_to_datetime(results[0])
+        else:
+            time_datetime = datetime.datetime.min
+        return time_datetime
+
+    @staticmethod
+    def change_rss_item_hash(hash_code):
+        """
+        给torrent添加hash值
+        :param str hash_code: 该item的hash值
+        """
+        database_path = 'data/anime.sql'
+        RssItemTable.create_rss_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                            select pub_date from rss_item ORDER BY pub_date DESC
+                        ''',
+                       )
+        conn.commit()
+        conn.close()
+
+    @staticmethod
+    def check_item_exist(mikan_url):
+        """
+        判断该种子是否已经添加到qbittorrent
+        :param str mikan_url:https://mikanani.me/Home/Episode/后面的内容
+        :return bool:  当存在该种子，返回True;否则返回False
+        """
+        database_path = 'data/anime.sql'
+        RssItemTable.create_rss_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                            select * from rss_item where mikan_url = (?)
+                        ''',
+                       (mikan_url,)
+                       )
+        results = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        return len(results) > 0

@@ -20,7 +20,3 @@ def create_table_if_not_exists(table_schema):
 MikanTable.create_mikan_table_if_not_exists()
 BangumiTable.create_bangumi_table_if_not_exists()
 RssItemTable.create_rss_table_if_not_exists()
-
-mikan_sql = MikanTable
-bangumi_sql = BangumiTable
-rss_item_sql = RssItemTable

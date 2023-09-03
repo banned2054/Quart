@@ -1,9 +1,9 @@
-import asyncio
-
 import feedparser
 from lxml import html
 
+from app.models.sql import RssItemTable
 from app.utils.log_utils import SetUpLogger
+from app.utils.time_utils import str_to_datetime
 
 logger = SetUpLogger(__name__)
 
@@ -44,6 +44,17 @@ def GetAnimeHomeUrlFromMikan(html_str: str):
         return f"Error:{error_str}"
 
 
-async def GetRssItem(html_str: str):
-    loop = asyncio.get_event_loop()
-    feed = await loop.run_in_executor(None, feedparser.parse, html_str)
+async def GetRssItemList(html_str: str):
+    """
+    解析html信息，从rss页面解析到所有动画单集的种子
+    :param html_str: rss链接获取的页面
+    :return: 动画单集的种子信息组成rss
+    """
+    feed = await feedparser.parse(html_str)
+    last_pub_time = RssItemTable.get_latest_pub_time()
+    for item in reversed(feed.entries):
+        now_pub_time = str_to_datetime(item["default_pubdate"])
+        mikan_url = item["link"]
+        if not mikan_url.startswith("https://mikanani.me/Home/Episode/"):
+            continue
+        mikan_url = mikan_url.split("Episode/")[-1]

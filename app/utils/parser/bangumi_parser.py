@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from app import config
-from app.models.bangumi.bangumi_subject_info import BangumiSubjectInfo, BangumiType
+from app.models.bangumi_subject_info import BangumiSubjectInfo, BangumiType
 from app.utils.log_utils import SetUpLogger
 from app.utils.net_utils import fetch
 
