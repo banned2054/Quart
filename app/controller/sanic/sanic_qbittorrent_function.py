@@ -11,6 +11,10 @@ logger = SetUpLogger(__name__)
 async def qbittorrent_finish_download(request: sanic.request.Request):
     request_ip = request.remote_addr
     data = request.json
+    if not data:
+        logger.error(f"ip:{request_ip} request to finish download torrent, but not have parameter")
+        return json({"error": "Missing parameter"}, status = 400)
+
     hash_code = data.get("hash_code", None)
     torrent_name = data.get("torrent_name", None)
 

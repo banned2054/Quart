@@ -2,6 +2,7 @@ import sqlite3
 
 from app.models.sql.mikan_table import MikanTable
 from app.models.sql.bangumi_table import BangumiTable
+from app.models.sql.rss_item_table import RssItemTable
 
 
 def create_table_if_not_exists(table_schema):
@@ -18,6 +19,8 @@ def create_table_if_not_exists(table_schema):
 
 MikanTable.create_mikan_table_if_not_exists()
 BangumiTable.create_bangumi_table_if_not_exists()
+RssItemTable.create_rss_table_if_not_exists()
 
 mikan_sql = MikanTable
 bangumi_sql = BangumiTable
+rss_item_sql = RssItemTable

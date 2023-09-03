@@ -5,7 +5,6 @@ from app.utils.log_utils import SetUpLogger
 qbt_client = qbittorrentapi.Client(host = config.get_config("qbittorrent_url"),
                                    username = config.get_config("qbittorrent_name"),
                                    password = config.get_config("qbittorrent_password"))
-
 logger = SetUpLogger(__name__)
 
 

@@ -43,7 +43,9 @@ class MikanTable:
         cursor.execute('''
                 select * from mikan_info where mikan_url=?
             ''', (mikan_url,))
+        results = cursor.fetchall()
         conn.close()
+        return results
 
     @staticmethod
     def find_url_from_mikan_data(bangumi_id: int):
@@ -54,6 +56,6 @@ class MikanTable:
         cursor.execute('''
                 select * from mikan_info where bangumi_id=?
             ''', (bangumi_id,))
+        results = cursor.fetchall()
         conn.close()
-
-
+        return results

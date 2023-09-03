@@ -3,7 +3,7 @@ import threading
 
 import qbittorrentapi
 
-from app.utils.qbittorrent_utils import is_torrent_complete_and_matching
+from app.utils.qbittorrent_utils import is_torrent_complete_and_matching, qbt_client
 from app.controller.sanic import sanic_server
 from app import config
 
@@ -27,6 +27,5 @@ if __name__ == '__main__':
     # 创建并启动一个新线程来运行 thread_function
     thread = threading.Thread(target = thread_function)
     thread.start()
-
     # 在主线程中运行 Sanic 服务器
-    sanic_server.run(host = "0.0.0.0", port = 8000)
+    sanic_server.run(host = "0.0.0.0", port = 18341)
