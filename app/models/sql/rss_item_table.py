@@ -69,7 +69,7 @@ class RssItemTable:
     def get_latest_pub_time():
         """
         查询rss的item里最晚的pub_date
-        :return: datetime格式的pub_date
+        :return datetime: datetime格式的pub_date
         """
         database_path = 'data/anime.sql'
         RssItemTable.create_rss_table_if_not_exists()

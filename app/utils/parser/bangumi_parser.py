@@ -13,7 +13,7 @@ def get_image_url(data_dict):
     """
     获取bangumi对应的封面地址，优先度分别为common>medium>large>small>grid
     :param dict data_dict: 转换成dict格式的bangumi api返回的json
-    :return: 返回封面的地址
+    :return str: 返回封面的地址
     """
     keys_order = ["common", "medium", "large", "small", "grid"]
     for key in keys_order:
@@ -22,11 +22,11 @@ def get_image_url(data_dict):
     return ""
 
 
-async def get_episode_list(subject_id: int):
+async def get_episode_list(subject_id):
     """
     返回对应动画的所有集数
-    :param subject_id:动画的id
-    :return: 返回string，用','分隔
+    :param int subject_id:动画的id
+    :return tuple[bool, str]: 返回string，用','分隔
     """
     headers = {
         'User-Agent'   : config.get_setting('User-Agent'),
@@ -49,11 +49,11 @@ async def get_episode_list(subject_id: int):
         return response
 
 
-async def get_subject_info(subject_id: int):
+async def get_subject_info(subject_id):
     """
     返回对应的bangumi的信息
     :param int subject_id:对应动画/电视剧的subject id
-    :return:返回BangumiSubjectInfo格式的结果
+    :return BangumiSubjectInfo:返回BangumiSubjectInfo格式的结果
     """
     headers = {
         'User-Agent'   : config.get_setting('User-Agent'),

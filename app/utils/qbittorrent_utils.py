@@ -14,7 +14,7 @@ def is_torrent_complete_and_matching(torrent_hash, expected_name):
 
     :param torrent_hash: The hash of the torrent to check
     :param expected_name: The expected name of the torrent
-    :return: 当hash值和name相匹配，而且该torrent下载完成，返回ture，否则返回false
+    :return tuple[bool, str]: 当hash值和name相匹配，而且该torrent下载完成，返回ture，否则返回false
     """
     try:
         torrent_info = qbt_client.torrents_info(torrent_hashes = torrent_hash)[0]
