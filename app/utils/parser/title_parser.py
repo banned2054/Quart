@@ -1,8 +1,8 @@
 import re
 
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 RULES = [
     r"(.*) - (\d{1,4}(?!\d|p)|\d{1,4}\.\d{1,2}(?!\d|p))(?:v\d{1,2})?(?: )?(?:END)?(.*)",

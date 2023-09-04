@@ -1,19 +1,19 @@
 import qbittorrentapi
 from app import config
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 
 qbt_client = qbittorrentapi.Client(host = config.get_config("qbittorrent_url"),
                                    username = config.get_config("qbittorrent_name"),
                                    password = config.get_config("qbittorrent_password"))
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 def is_torrent_complete_and_matching(torrent_hash, expected_name):
     """
     判断hash值和name是否相匹配，并且该torrent是否下载完成
 
-    :param torrent_hash: The hash of the torrent to check
-    :param expected_name: The expected name of the torrent
+    :param str torrent_hash: The hash of the torrent to check
+    :param str expected_name: The expected name of the torrent
     :return tuple[bool, str]: 当hash值和name相匹配，而且该torrent下载完成，返回ture，否则返回false
     """
     try:

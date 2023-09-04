@@ -18,7 +18,7 @@ class RssItemTable:
                                 item_name varchar
                                     constraint mikan_url
                                         primary key,
-                                mikan_url varchar
+                                mikan_url varchar,
                                 torrent_hash varchar,
                                 bangumi_id integer,
                                 episode integer,
@@ -89,9 +89,10 @@ class RssItemTable:
         return time_datetime
 
     @staticmethod
-    def change_rss_item_hash(hash_code):
+    def change_rss_item_hash(mikan_url, hash_code):
         """
         给torrent添加hash值
+        :param str mikan_url: 该item的mikan链接
         :param str hash_code: 该item的hash值
         """
         database_path = 'data/anime.sql'
@@ -125,3 +126,26 @@ class RssItemTable:
         conn.commit()
         conn.close()
         return len(results) > 0
+
+    @staticmethod
+    def get_bangumi_id_by_origin_name(origin_name):
+        """
+        通过origin_name找到对应的bangumi_id
+        :param str origin_name: 用title_parser解析的title
+        :return int: bangumi_id
+        """
+        database_path = 'data/anime.sql'
+        RssItemTable.create_rss_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                            select distinct bangumi_id from rss_item where origin_name = (?)
+                        ''',
+                       (origin_name,)
+                       )
+        results = cursor.fetchall()
+        conn.commit()
+        conn.close()
+        if len(results) > 0:
+            return results[0]
+        return -1

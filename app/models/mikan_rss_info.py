@@ -3,7 +3,7 @@ from datetime import datetime
 
 
 @dataclass
-class BangumiSubjectInfo:
+class RssItemInfo:
     item_name: str
     mikan_url: str
     bangumi_id: int

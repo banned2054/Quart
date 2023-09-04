@@ -2,10 +2,10 @@ import sanic
 from sanic import json
 
 from app import config
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 from app.utils.qbittorrent_utils import is_torrent_complete_and_matching
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 async def qbittorrent_finish_download(request: sanic.request.Request):

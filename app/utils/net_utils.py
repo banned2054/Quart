@@ -4,9 +4,9 @@ from urllib.parse import urlparse
 import aiohttp
 
 from app import config
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 async def download_file(url, dir_path, retries = 3, timeout = 10):

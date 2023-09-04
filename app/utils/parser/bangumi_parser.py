@@ -3,10 +3,10 @@ from datetime import datetime
 
 from app import config
 from app.models.bangumi_subject_info import BangumiSubjectInfo, BangumiType
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 from app.utils.net_utils import fetch
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 def get_image_url(data_dict):

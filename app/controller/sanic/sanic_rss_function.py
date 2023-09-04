@@ -2,9 +2,9 @@ import sanic
 from sanic import json
 
 from app import config
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 async def change_rss_url(request: sanic.request.Request):

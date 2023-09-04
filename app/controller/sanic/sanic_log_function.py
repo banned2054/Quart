@@ -3,9 +3,9 @@ import os
 import sanic
 from sanic import json
 
-from app.utils.log_utils import SetUpLogger
+from app.utils.log_utils import set_up_logger
 
-logger = SetUpLogger(__name__)
+logger = set_up_logger(__name__)
 
 
 async def get_log_file_list(request: sanic.request.Request):

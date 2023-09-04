@@ -17,7 +17,11 @@ class TimeZoneFilter(logging.Filter):
 
 
 # Set up the logger
-def SetUpLogger(logger_name, loglevel = logging.INFO):
+def set_up_logger(logger_name, loglevel = logging.INFO):
+    """
+    生成特定的logger
+    :return:
+    """
     current_time = datetime.now()
     logfile = os.path.join('log', f"{current_time.strftime('%Y-%m-%d')}.log")
 

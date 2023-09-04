@@ -37,7 +37,7 @@ class BangumiTable:
         conn.close()
 
     @staticmethod
-    def find_id_from_mikan_data(bangumi_id: str):
+    def get_(bangumi_id: str):
         database_path = 'data/anime.sql'
         BangumiTable.create_bangumi_table_if_not_exists()
         conn = sqlite3.connect(database_path)
