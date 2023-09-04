@@ -1,6 +1,6 @@
 import sqlite3
 
-from app.models.sql import create_table_if_not_exists
+from app.models.sql.universal_sql_function import create_table_if_not_exists
 
 
 class BangumiTable:
@@ -25,7 +25,7 @@ class BangumiTable:
 
     @staticmethod
     def insert_bangumi_data(cn_name, pub_date, bangumi_id, image_url):
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         BangumiTable.create_bangumi_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -37,12 +37,13 @@ class BangumiTable:
         conn.close()
 
     @staticmethod
-    def get_(bangumi_id: str):
-        database_path = 'data/anime.sql'
+    def get_anime_name_by_id(bangumi_id: str):
+        database_path = 'data/anime.db'
         BangumiTable.create_bangumi_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
-                select * from bangumi_info where bangumi_id=?
+                select cn_name from bangumi_info where bangumi_id=?
             ''', (bangumi_id,))
+        results = cursor.fetchall()
         conn.close()

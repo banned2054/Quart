@@ -1,6 +1,6 @@
 import sqlite3
 
-from app.models.sql import create_table_if_not_exists
+from app.models.sql.universal_sql_function import create_table_if_not_exists
 
 
 class MikanTable:
@@ -23,7 +23,7 @@ class MikanTable:
 
     @staticmethod
     def insert_mikan_data(mikan_url, bangumi_id):
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         MikanTable.create_mikan_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -36,7 +36,7 @@ class MikanTable:
 
     @staticmethod
     def find_id_from_mikan_data(mikan_url: str):
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         MikanTable.create_mikan_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -49,7 +49,7 @@ class MikanTable:
 
     @staticmethod
     def find_url_from_mikan_data(bangumi_id: int):
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         MikanTable.create_mikan_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()

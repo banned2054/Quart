@@ -1,7 +1,7 @@
 import datetime
 import sqlite3
 
-from app.models.sql import create_table_if_not_exists
+from app.models.sql.universal_sql_function import create_table_if_not_exists
 from app.utils.time_utils import str_to_datetime
 
 
@@ -12,6 +12,7 @@ class RssItemTable:
 
     @staticmethod
     def create_rss_table_if_not_exists():
+        print("create")
         table_schema = '''
                             create table if not exists rss_item
                             (
@@ -30,7 +31,7 @@ class RssItemTable:
 
     @staticmethod
     def insert_rss_data(item_name, mikan_url, bangumi_id, episode, pub_date):
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -52,7 +53,7 @@ class RssItemTable:
 
     @staticmethod
     def get_rss_order_by_time():
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -71,7 +72,7 @@ class RssItemTable:
         查询rss的item里最晚的pub_date
         :return datetime: datetime格式的pub_date
         """
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -95,7 +96,7 @@ class RssItemTable:
         :param str mikan_url: 该item的mikan链接
         :param str hash_code: 该item的hash值
         """
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -113,7 +114,7 @@ class RssItemTable:
         :param str mikan_url:https://mikanani.me/Home/Episode/后面的内容
         :return bool:  当存在该种子，返回True;否则返回False
         """
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
@@ -134,7 +135,7 @@ class RssItemTable:
         :param str origin_name: 用title_parser解析的title
         :return int: bangumi_id
         """
-        database_path = 'data/anime.sql'
+        database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()

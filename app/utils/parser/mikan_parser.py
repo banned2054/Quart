@@ -70,4 +70,4 @@ async def get_rss_item_list(html_str):
         origin_name = get_title(origin_name)
         bangumi_id = RssItemTable.get_bangumi_id_by_origin_name(origin_name)
 
-        RssItemInfo(, mikan_url, bangumi_id, episode)
+        # RssItemInfo(, mikan_url, bangumi_id, episode)

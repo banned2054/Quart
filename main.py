@@ -4,11 +4,9 @@ import threading
 import feedparser
 import qbittorrentapi
 
+from app.models.sql import RssItemTable
 from app.utils.net_utils import fetch
-from app.utils.parser.title_parser import get_episode, get_title
-from app.utils.qbittorrent_utils import is_torrent_complete_and_matching, qbt_client
-from app.controller.sanic import sanic_server
-from app import config
+from app.utils.parser.title_parser import get_title
 
 
 def thread_function():
@@ -33,7 +31,9 @@ async def infinite_loop_coroutine():
 
 if __name__ == '__main__':
     # 创建并启动一个新线程来运行 thread_function
-    thread = threading.Thread(target = thread_function)
-    thread.start()
+    # thread = threading.Thread(target = thread_function)
+    # thread.start()
     # # 在主线程中运行 Sanic 服务器
     # sanic_server.run(host = "0.0.0.0", port = 18341)
+    test = RssItemTable.check_item_exist("d3e8adf07f027b1ee7ab45991f60e5ec727d9986")
+    print(test)
