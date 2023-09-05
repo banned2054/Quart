@@ -13,9 +13,17 @@ RULES = [
 ]
 
 SUBTITLE_LANG = {
-    "zh-tw": ["tc", "cht", "繁", "zh-tw", "big5"],
-    "zh"   : ["sc", "chs", "简", "zh"],
+    "zh-tc"       : ["tc", "cht", "繁体", "繁日", "繁中", "zh-tw", "big5"],
+    "zh-sc"       : ["sc", "chs", "简体", "简日", "简中", "zh"],
+    "zh-sc-and-tc": ["繁简", "简繁"]
 }
+
+
+def get_subtitle_language(subtitle_name: str) -> str:
+    for key, value in SUBTITLE_LANG.items():
+        for v in value:
+            if v in subtitle_name.lower():
+                return key
 
 
 def clear_title(origin_title):

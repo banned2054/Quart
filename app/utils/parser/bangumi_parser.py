@@ -76,3 +76,19 @@ async def get_subject_info(subject_id):
         return subject_info
     else:
         return None
+
+
+async def get_subject_name(subject_id):
+    headers = {
+        'User-Agent'   : config.get_setting('User-Agent'),
+        'Authorization': config.get_setting('Authorization'),
+        'Cookie'       : config.get_setting('Cookie')
+    }
+    url = f"https://api.bgm.tv/v0/subjects/{subject_id}"
+    response = await fetch(url, headers)
+    if response[0]:
+        subject_dict = json.loads(response[1])
+        cn_name = subject_dict['name_cn']
+        return True, cn_name
+    else:
+        return False, ""

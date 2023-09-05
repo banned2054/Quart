@@ -1,19 +1,60 @@
+import feedparser
+
 from app import config
+from app.models.sql import RssItemTable
 from app.utils.log_utils import set_up_logger
 from app.utils.net_utils import fetch
-from app.utils.parser.mikan_parser import get_rss_item_list
+from app.utils.parser.bangumi_parser import get_subject_name
+from app.utils.parser.mikan_parser import get_anime_home_url_from_mikan, get_bangumi_url_from_mikan
+from app.utils.parser.title_parser import get_episode, get_subtitle_language, get_title
+from app.utils.time_utils import datetime_to_str, str_to_datetime
 
 logger = set_up_logger(__name__)
 
 
 async def fresh_rss():
     try:
-        rss_url = (config.get_config("mikan_rss_url"))
-        response = await fetch(rss_url)
-        if response[0]:
-            return get_rss_item_list(response[1])
-        else:
-            raise Exception(f"Cannot download file, status code: {response[1]}")
+        rss_url = config.get_config("mikan_rss_url")
+        if rss_url == "":
+            raise Exception('rss link is empty')
+
+        # 访问rss链接，并解析
+        rss_page = await fetch(rss_url)
+        feed = feedparser.parse(rss_page[1])
+        target_language = config.get_config("subtitle_language")
+
+        # 查询每一个item
+        for item in reversed(feed.entries):
+            item_title = item.title
+            now_language = get_subtitle_language(item_title)
+
+            # 目标语言和这个种子语言不一致
+            if now_language != target_language:
+                continue
+
+            origin_title = get_title(item_title)
+            episode = get_episode(item_title)
+
+            # 只保留最后面一部分，节省空间
+            mikan_url = item["link"].split('https://mikanani.me/Home/Episode/')[-1]
+
+            # 数据库中已经有该种子信息
+            if RssItemTable.check_item_exist(mikan_url):
+                continue
+
+            mikan_home_url = await get_anime_home_url_from_mikan(mikan_url)
+            if mikan_home_url[0]:
+                bangumi_url = await get_bangumi_url_from_mikan(mikan_home_url[1])
+                if bangumi_url[0]:
+                    bangumi_id = int(bangumi_url[1].split('https://bgm.tv/subject/')[-1])
+                    anime_name = await get_subject_name(bangumi_id)
+                    if not anime_name[0]:
+                        continue
+                    anime_name = anime_name[1]
+                    pub_date = datetime_to_str(str_to_datetime(item['published']))
+                    print(origin_title, episode, mikan_url, mikan_home_url[1], bangumi_url[1], pub_date)
+                    RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
     except Exception as e:
         error_str = str(e)
-        logger.error(f"Try to fetch Rss, error:{error_str}")
+        logger.error(f"Try to fresh rss failed: {error_str}")
+        return False, error_str

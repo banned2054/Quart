@@ -12,7 +12,6 @@ class RssItemTable:
 
     @staticmethod
     def create_rss_table_if_not_exists():
-        print("create")
         table_schema = '''
                             create table if not exists rss_item
                             (
