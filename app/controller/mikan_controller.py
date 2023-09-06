@@ -59,7 +59,9 @@ async def fresh_rss():
                 RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
                 if BangumiTable.check_anime_exists(bangumi_id):
                     continue
-                BangumiTable.insert_bangumi_data(anime_name, anime_info.pub_date, bangumi_id, anime_info.image_url)
+                BangumiTable.insert_bangumi_data(anime_info.id, anime_info.platform, anime_info.image_url,
+                                                 anime_info.origin_name, anime_info.cn_name, anime_info.pub_date,
+                                                 anime_info.now_type.value)
             else:
                 BangumiTable.get_anime_info_by_id(bangumi_id)
     except Exception as e:

@@ -22,19 +22,24 @@ def get_image_url(data_dict):
     return ""
 
 
+async def fetch_bangumi(url):
+    headers = {
+        'User-Agent'   : config.get_setting('User-Agent'),
+        'Authorization': config.get_setting('Authorization'),
+        'Cookie'       : config.get_setting('Cookie')
+    }
+    response = await fetch(url, headers)
+    return response
+
+
 async def get_episode_list(subject_id):
     """
     返回对应动画的所有集数
     :param int subject_id:动画的id
     :return tuple[bool, str]: 返回string，用','分隔
     """
-    headers = {
-        'User-Agent'   : config.get_setting('User-Agent'),
-        'Authorization': config.get_setting('Authorization'),
-        'Cookie'       : config.get_setting('Cookie')
-    }
     url = f"https://api.bgm.tv/v0/episodes?subject_id={subject_id}"
-    response = await fetch(url, headers)
+    response = await fetch_bangumi(url)
     if response[0]:
         subject_dict = json.loads(response[1])
         data_list = subject_dict['data']
@@ -55,24 +60,17 @@ async def get_subject_info(subject_id):
     :param int subject_id:对应动画/电视剧的subject id
     :return BangumiSubjectInfo:返回BangumiSubjectInfo格式的结果
     """
-    headers = {
-        'User-Agent'   : config.get_setting('User-Agent'),
-        'Authorization': config.get_setting('Authorization'),
-        'Cookie'       : config.get_setting('Cookie')
-    }
     url = f"https://api.bgm.tv/v0/subjects/{subject_id}"
-    response = await fetch(url, headers)
+    response = await fetch_bangumi(url)
     if response[0]:
         subject_dict = json.loads(response[1])
-        print(subject_dict)
         image_url = get_image_url(subject_dict['images'])
+        platform = subject_dict['platform']
+        origin_name = subject_dict['name']
         cn_name = subject_dict['name_cn']
         pub_date = datetime.strptime(subject_dict['date'], "%Y-%m-%d").date()
         anime_type = BangumiType(subject_dict['type'])
-        episodes = await get_episode_list(subject_id)
-        if not episodes[0]:
-            episodes[1] = ''
-        subject_info = BangumiSubjectInfo(subject_id, image_url, cn_name, pub_date, anime_type, episodes[1])
+        subject_info = BangumiSubjectInfo(subject_id, platform, image_url, origin_name, cn_name, pub_date, anime_type)
         logger.info(f'Get anime info, subject id:{subject_id}, cn_name:{cn_name}, pub_date:{pub_date}')
         return subject_info
     else:

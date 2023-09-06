@@ -20,8 +20,8 @@ async def infinite_loop_coroutine():
     # while True:
     #     await fresh_rss()
     #     await asyncio.sleep(sleep_time)
-    # BangumiTable.get_anime_info_by_id(387822)
-    await get_subject_info(160209)
+    result = BangumiTable.get_anime_info_by_id(369784)
+    print(result)
 
 
 if __name__ == '__main__':
@@ -30,8 +30,3 @@ if __name__ == '__main__':
     thread.start()
     # # 在主线程中运行 Sanic 服务器
     # sanic_server.run(host = "0.0.0.0", port = 18341)
-    # RssItemTable.insert_rss_data("adsa", "sda", 111, 1, "2019.09.07")
-    # test = RssItemTable.check_item_exist("sda")
-    # print(test)
-    # test = RssItemTable.get_latest_pub_time()
-    # print(test)
