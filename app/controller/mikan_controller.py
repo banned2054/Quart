@@ -35,36 +35,48 @@ async def fresh_rss():
             origin_title = get_title(item_title)
             episode = get_episode(item_title)
 
-            # 只保留最后面一部分，节省空间
-            mikan_url = item["link"].split('https://mikanani.me/Home/Episode/')[-1]
-
             # 数据库中已经有该种子信息
-            if RssItemTable.check_item_exist(mikan_url):
+            if RssItemTable.check_item_exist(item):
                 continue
 
             bangumi_id = RssItemTable.get_bangumi_id_by_origin_name(origin_title)
             if bangumi_id == -1:
-                mikan_home_url = await get_anime_home_url_from_mikan(mikan_url)
-                if not mikan_home_url[0]:
-                    continue
-                bangumi_url = await get_bangumi_url_from_mikan(mikan_home_url[1])
-                if not bangumi_url[0]:
-                    continue
-                bangumi_id = int(bangumi_url[1].split('https://bgm.tv/subject/')[-1])
-                anime_info = await get_subject_info(bangumi_id)
-                if anime_info is None:
-                    continue
-                anime_name = anime_info.cn_name
-                pub_date = datetime_to_str(str_to_datetime(item['published']))
-                RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
-                if BangumiTable.check_anime_exists(bangumi_id):
-                    continue
-                BangumiTable.insert_bangumi_data(anime_info.id, anime_info.platform, anime_info.image_url,
-                                                 anime_info.origin_name, anime_info.cn_name, anime_info.pub_date,
-                                                 anime_info.now_type.value)
+                await add_item_when_bangumi_dont_have(item)
             else:
                 BangumiTable.get_anime_info_by_id(bangumi_id)
     except Exception as e:
         error_str = str(e)
         logger.error(f"Try to fresh rss failed: {error_str}")
         return False, error_str
+
+
+async def add_item_when_bangumi_dont_have(item):
+    item_title = item.title
+    origin_title = get_title(item_title)
+    episode = get_episode(item_title)
+
+    # 只保留最后面一部分，节省空间
+    mikan_url = item["link"].split('https://mikanani.me/Home/Episode/')[-1]
+
+    mikan_home_url = await get_anime_home_url_from_mikan(mikan_url)
+    if not mikan_home_url[0]:
+        return
+    bangumi_url = await get_bangumi_url_from_mikan(mikan_home_url[1])
+    if not bangumi_url[0]:
+        return
+    bangumi_id = int(bangumi_url[1].split('https://bgm.tv/subject/')[-1])
+    anime_info = await get_subject_info(bangumi_id)
+    if anime_info is None:
+        return
+    anime_name = anime_info.cn_name
+    pub_date = datetime_to_str(str_to_datetime(item['published']))
+    RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
+    if BangumiTable.check_anime_exists(bangumi_id):
+        return
+    BangumiTable.insert_bangumi_data(anime_info.id,
+                                     anime_info.platform,
+                                     anime_info.image_url,
+                                     anime_info.origin_name,
+                                     anime_info.cn_name,
+                                     anime_info.pub_date,
+                                     anime_info.now_type.value)
