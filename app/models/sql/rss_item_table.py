@@ -139,7 +139,7 @@ class RssItemTable:
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
-                            select distinct bangumi_id from rss_item where origin_name = (?)
+                            select distinct bangumi_id from rss_item where item_name = (?)
                         ''',
                        (origin_name,)
                        )
@@ -147,5 +147,5 @@ class RssItemTable:
         conn.commit()
         conn.close()
         if len(results) > 0:
-            return results[0]
+            return results[0][0]
         return -1

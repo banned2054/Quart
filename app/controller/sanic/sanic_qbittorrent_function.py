@@ -1,7 +1,6 @@
 import sanic
 from sanic import json
 
-from app import config
 from app.utils.log_utils import set_up_logger
 from app.utils.qbittorrent_utils import is_torrent_complete_and_matching
 

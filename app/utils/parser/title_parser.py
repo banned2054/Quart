@@ -68,9 +68,8 @@ def get_title(origin_title):
         match_obj = re.match(rule, cleared_title, re.I)
         if not match_obj:
             continue
-        origin_title = get_title_first_step(match_obj.group(1))
-        title = re.sub(r"([Ss]|Season )\d{1,3}", "", origin_title).strip()
-        title = title.split('/')[0]
+        origin_title = get_title_first_step(match_obj.group(1)).strip()
+        title = origin_title.split('/')[0]
         title = title.strip()
         return title
     return ""

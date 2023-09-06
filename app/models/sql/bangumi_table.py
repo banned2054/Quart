@@ -37,13 +37,35 @@ class BangumiTable:
         conn.close()
 
     @staticmethod
-    def get_anime_name_by_id(bangumi_id: str):
+    def get_anime_info_by_id(bangumi_id: int):
         database_path = 'data/anime.db'
         BangumiTable.create_bangumi_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
-                select cn_name from bangumi_info where bangumi_id=?
+                select * from bangumi_info where bangumi_id=?
             ''', (bangumi_id,))
         results = cursor.fetchall()
         conn.close()
+        if len(results) > 0:
+            for r in results[0]:
+                print(type(r), r)
+            return results[0]
+        else:
+            return ""
+
+    @staticmethod
+    def check_anime_exists(bangumi_id: int):
+        database_path = 'data/anime.db'
+        BangumiTable.create_bangumi_table_if_not_exists()
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+                select * from bangumi_info where bangumi_id=?
+            ''', (bangumi_id,))
+        results = cursor.fetchall()
+        conn.close()
+        if len(results) > 0:
+            return True
+        else:
+            return False

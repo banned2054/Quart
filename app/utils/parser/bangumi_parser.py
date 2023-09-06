@@ -64,9 +64,10 @@ async def get_subject_info(subject_id):
     response = await fetch(url, headers)
     if response[0]:
         subject_dict = json.loads(response[1])
+        print(subject_dict)
         image_url = get_image_url(subject_dict['images'])
         cn_name = subject_dict['name_cn']
-        pub_date = datetime.strptime(subject_dict['infobox'][3]['value'], "%Y年%m月%d日").date()
+        pub_date = datetime.strptime(subject_dict['date'], "%Y-%m-%d").date()
         anime_type = BangumiType(subject_dict['type'])
         episodes = await get_episode_list(subject_id)
         if not episodes[0]:

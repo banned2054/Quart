@@ -1,17 +1,10 @@
 import asyncio
 import threading
 
-import feedparser
-import qbittorrentapi
-
 from app import config
 from app.controller.mikan_controller import fresh_rss
-from app.models.sql import RssItemTable
-from app.utils.net_utils import fetch
-from app.utils.parser.bangumi_parser import get_subject_name
-from app.utils.parser.mikan_parser import get_anime_home_url_from_mikan, get_bangumi_url_from_mikan
-from app.utils.parser.title_parser import get_episode, get_subtitle_language, get_title
-from app.utils.time_utils import datetime_to_str, str_to_datetime
+from app.models.sql import BangumiTable
+from app.utils.parser.bangumi_parser import get_subject_info
 
 
 def thread_function():
@@ -21,12 +14,14 @@ def thread_function():
 
 
 async def infinite_loop_coroutine():
-    sleep_time = int(config.get_config('IntervalTimeToRss'))
-    if sleep_time <= 0:
-        sleep_time = 1
-    while True:
-        await fresh_rss()
-        await asyncio.sleep(sleep_time)
+    # sleep_time = int(config.get_config('IntervalTimeToRss'))
+    # if sleep_time <= 0:
+    #     sleep_time = 1
+    # while True:
+    #     await fresh_rss()
+    #     await asyncio.sleep(sleep_time)
+    # BangumiTable.get_anime_info_by_id(387822)
+    await get_subject_info(160209)
 
 
 if __name__ == '__main__':

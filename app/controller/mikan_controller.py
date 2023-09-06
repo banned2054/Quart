@@ -1,10 +1,10 @@
 import feedparser
 
 from app import config
-from app.models.sql import RssItemTable
+from app.models.sql import BangumiTable, RssItemTable
 from app.utils.log_utils import set_up_logger
 from app.utils.net_utils import fetch
-from app.utils.parser.bangumi_parser import get_subject_name
+from app.utils.parser.bangumi_parser import get_subject_info, get_subject_name
 from app.utils.parser.mikan_parser import get_anime_home_url_from_mikan, get_bangumi_url_from_mikan
 from app.utils.parser.title_parser import get_episode, get_subtitle_language, get_title
 from app.utils.time_utils import datetime_to_str, str_to_datetime
@@ -42,18 +42,26 @@ async def fresh_rss():
             if RssItemTable.check_item_exist(mikan_url):
                 continue
 
-            mikan_home_url = await get_anime_home_url_from_mikan(mikan_url)
-            if mikan_home_url[0]:
+            bangumi_id = RssItemTable.get_bangumi_id_by_origin_name(origin_title)
+            if bangumi_id == -1:
+                mikan_home_url = await get_anime_home_url_from_mikan(mikan_url)
+                if not mikan_home_url[0]:
+                    continue
                 bangumi_url = await get_bangumi_url_from_mikan(mikan_home_url[1])
-                if bangumi_url[0]:
-                    bangumi_id = int(bangumi_url[1].split('https://bgm.tv/subject/')[-1])
-                    anime_name = await get_subject_name(bangumi_id)
-                    if not anime_name[0]:
-                        continue
-                    anime_name = anime_name[1]
-                    pub_date = datetime_to_str(str_to_datetime(item['published']))
-                    print(origin_title, episode, mikan_url, mikan_home_url[1], bangumi_url[1], pub_date)
-                    RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
+                if not bangumi_url[0]:
+                    continue
+                bangumi_id = int(bangumi_url[1].split('https://bgm.tv/subject/')[-1])
+                anime_info = await get_subject_info(bangumi_id)
+                if anime_info is None:
+                    continue
+                anime_name = anime_info.cn_name
+                pub_date = datetime_to_str(str_to_datetime(item['published']))
+                RssItemTable.insert_rss_data(anime_name, mikan_url, bangumi_id, episode, pub_date)
+                if BangumiTable.check_anime_exists(bangumi_id):
+                    continue
+                BangumiTable.insert_bangumi_data(anime_name, anime_info.pub_date, bangumi_id, anime_info.image_url)
+            else:
+                BangumiTable.get_anime_info_by_id(bangumi_id)
     except Exception as e:
         error_str = str(e)
         logger.error(f"Try to fresh rss failed: {error_str}")
