@@ -14,16 +14,15 @@ def thread_function():
 
 
 async def infinite_loop_coroutine():
-    # sleep_time = int(config.get_config('IntervalTimeToRss'))
-    # if sleep_time <= 0:
-    #     sleep_time = 1
-    # while True:
-    #     await fresh_rss()
-    #     await asyncio.sleep(sleep_time)
+    sleep_time = int(config.get_config('IntervalTimeToRss'))
+    if sleep_time <= 0:
+        sleep_time = 1
+    while True:
+        await fresh_rss()
+        await asyncio.sleep(sleep_time)
     # result = BangumiTable.get_anime_info_by_id(176974)
-    result = await get_subject_info(176974)
-
-    print(result)
+    # result = await get_subject_info(176974)
+    # print(result)
 
 
 if __name__ == '__main__':

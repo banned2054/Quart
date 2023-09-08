@@ -1,4 +1,8 @@
+import asyncio
+import os
+
 import qbittorrentapi
+
 from app import config
 from app.utils.log_utils import set_up_logger
 
@@ -30,3 +34,33 @@ def is_torrent_complete_and_matching(torrent_hash, expected_name):
     except IndexError:
         logger.error(f"hash:{torrent_hash}, this torrent has some error unusual")
         return False, "Other error"
+
+
+async def download_one_file(torrent_path, save_path, dir_name, file_name, tag):
+    """
+    添加种子到qbittorrent
+    :param str torrent_path: torrent文件的路径
+    :param str save_path: 下载的路径，例如`/downloads/Anime`
+    :param str dir_name: 下载的动画的文件夹，例如`[2023.01]白圣女与黑牧师`
+    :param str file_name: 下载的单集动画名，例如`白圣女与黑牧师 E01.mp4`
+    :param str tag:
+    :return:
+    """
+    startTorrentList = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
+    with open(torrent_path, 'rb') as f:
+        torrent_content = f.read()
+    qbt_client.torrents_add(torrent_files = torrent_content,
+                            savepath = save_path,
+                            is_paused = True)
+    await asyncio.sleep(2)
+    endTorrentList = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
+    newTorrents = set(endTorrentList) - set(startTorrentList)
+    newTorrentHash = newTorrents.pop()
+    qbt_client.torrents_rename(torrent_hash = newTorrentHash, new_torrent_name = dir_name)
+    qbt_client.torrents_rename_file(torrent_hash = newTorrentHash, file_id = 0,
+                                    new_file_name = os.path.join(dir_name, file_name))
+    qbt_client.torrents_add_tags(torrent_hashes = newTorrentHash, tags = tag)
+    qbt_client.torrents_recheck(newTorrentHash)
+    await asyncio.sleep(10)
+    qbt_client.torrents_resume(newTorrentHash)
+    qbt_client.torrents_reannounce(torrent_hashes = newTorrentHash)

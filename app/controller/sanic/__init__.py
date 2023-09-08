@@ -1,7 +1,8 @@
 from sanic import Sanic
-from app.controller.sanic.sanic_log_function import get_log_file_list, get_log_file
-from app.controller.sanic.sanic_rss_function import change_rss_url
+
+from app.controller.sanic.sanic_log_function import get_log_file, get_log_file_list
 from app.controller.sanic.sanic_qbittorrent_function import qbittorrent_finish_download
+from app.controller.sanic.sanic_rss_function import change_rss_url
 
 sanic_server = Sanic("FileListApp")
 

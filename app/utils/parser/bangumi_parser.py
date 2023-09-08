@@ -64,7 +64,6 @@ async def get_subject_info(subject_id):
     response = await fetch_bangumi(url)
     if response[0]:
         subject_dict = json.loads(response[1])
-        print(response[1])
         image_url = get_image_url(subject_dict['images'])
         platform = subject_dict['platform']
         origin_name = subject_dict['name']

@@ -13,9 +13,9 @@ async def get_bangumi_url_from_mikan(mikan_url):
     :return tuple[bool, str]: 该动画对应的bangumi地址
     """
     try:
-        reponse = await fetch(f"https://mikanani.me/Home/Bangumi/{mikan_url}")
-        if reponse[0]:
-            tree = html.fromstring(reponse[1])
+        response = await fetch(f"https://mikanani.me/Home/Bangumi/{mikan_url}")
+        if response[0]:
+            tree = html.fromstring(response[1])
             a_tag = tree.xpath('//p[@class="bangumi-info"]/a[contains(@href, "bgm.tv")]')[0]
             href = a_tag.attrib['href']
             logger.info(f"Get bangumi url from mikan page: {href}")
