@@ -18,6 +18,8 @@ class RssItemTable:
                                 item_name varchar
                                     constraint mikan_url
                                         primary key,
+                                anime_name varchar,
+                                origin_name varchar,
                                 mikan_url varchar,
                                 torrent_hash varchar,
                                 bangumi_id integer,
@@ -29,14 +31,16 @@ class RssItemTable:
         create_table_if_not_exists(table_schema)
 
     @staticmethod
-    def insert_rss_data(item_name, mikan_url, bangumi_id, episode, pub_date):
+    def insert_rss_data(item_name, anime_name, origin_name, mikan_url, bangumi_id, episode, pub_date):
         database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
                                 insert into rss_item (
-                                                        item_name, 
+                                                        item_name,
+                                                        anime_name,
+                                                        origin_name,
                                                         mikan_url, 
                                                         torrent_hash, 
                                                         bangumi_id, 
@@ -46,7 +50,7 @@ class RssItemTable:
                                                     )
                                 values (?, ?, ?, ?, ?, ?, ?)
                             ''',
-                       (item_name, mikan_url, "", bangumi_id, episode, pub_date, 0))
+                       (item_name, anime_name, origin_name, mikan_url, "", bangumi_id, episode, pub_date, 0))
         conn.commit()
         conn.close()
 
@@ -99,10 +103,12 @@ class RssItemTable:
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
-        cursor.execute('''
-                            select pub_date from rss_item ORDER BY pub_date DESC
-                        ''',
-                       )
+        cursor.execute("""
+                                update rss_item
+                                set torrent_hash = ?
+                                where mikan_url = ?
+                            """,
+                       (hash_code, mikan_url))
         conn.commit()
         conn.close()
 
@@ -128,10 +134,10 @@ class RssItemTable:
         return len(results) > 0
 
     @staticmethod
-    def get_bangumi_id_by_origin_name(origin_name):
+    def get_bangumi_id_by_anime_name(anime_name):
         """
         通过origin_name找到对应的bangumi_id
-        :param str origin_name: 用title_parser解析的title
+        :param str anime_name: 用title_parser解析的title
         :return int: bangumi_id
         """
         database_path = 'data/anime.db'
@@ -139,9 +145,9 @@ class RssItemTable:
         conn = sqlite3.connect(database_path)
         cursor = conn.cursor()
         cursor.execute('''
-                            select distinct bangumi_id from rss_item where item_name = (?)
+                            select distinct bangumi_id from rss_item where anime_name = (?)
                         ''',
-                       (origin_name,)
+                       (anime_name,)
                        )
         results = cursor.fetchall()
         conn.commit()

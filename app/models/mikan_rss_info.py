@@ -5,8 +5,10 @@ from datetime import datetime
 @dataclass
 class RssItemInfo:
     item_name: str
+    anime_name: str
+    origin_name: str
     mikan_url: str
     bangumi_id: int
-    episode: int
+    episode: float
     pub_date: datetime
-    origin_name: str
+    download_finish: int

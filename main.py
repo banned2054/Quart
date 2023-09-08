@@ -20,7 +20,9 @@ async def infinite_loop_coroutine():
     # while True:
     #     await fresh_rss()
     #     await asyncio.sleep(sleep_time)
-    result = BangumiTable.get_anime_info_by_id(369784)
+    # result = BangumiTable.get_anime_info_by_id(176974)
+    result = await get_subject_info(176974)
+
     print(result)
 
 
