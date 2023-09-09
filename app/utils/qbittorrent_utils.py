@@ -1,9 +1,10 @@
 import asyncio
-import os
 
 import qbittorrentapi
 
 from app import config
+from app.models.sql import RssItemTable
+from app.utils.file_utils import remove_file
 from app.utils.log_utils import set_up_logger
 
 qbt_client = qbittorrentapi.Client(host = config.get_config("qbittorrent_url"),
@@ -36,7 +37,7 @@ def is_torrent_complete_and_matching(torrent_hash, expected_name):
         return False, "Other error"
 
 
-async def download_one_file(torrent_path, save_path, dir_name, file_name, tag):
+async def download_one_file(torrent_path, save_path, dir_name, file_name, tag, mikan_url):
     """
     添加种子到qbittorrent
     :param str torrent_path: torrent文件的路径
@@ -46,21 +47,36 @@ async def download_one_file(torrent_path, save_path, dir_name, file_name, tag):
     :param str tag:
     :return:
     """
-    startTorrentList = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
-    with open(torrent_path, 'rb') as f:
-        torrent_content = f.read()
-    qbt_client.torrents_add(torrent_files = torrent_content,
-                            savepath = save_path,
-                            is_paused = True)
-    await asyncio.sleep(2)
-    endTorrentList = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
-    newTorrents = set(endTorrentList) - set(startTorrentList)
-    newTorrentHash = newTorrents.pop()
-    qbt_client.torrents_rename(torrent_hash = newTorrentHash, new_torrent_name = dir_name)
-    qbt_client.torrents_rename_file(torrent_hash = newTorrentHash, file_id = 0,
-                                    new_file_name = os.path.join(dir_name, file_name))
-    qbt_client.torrents_add_tags(torrent_hashes = newTorrentHash, tags = tag)
-    qbt_client.torrents_recheck(newTorrentHash)
-    await asyncio.sleep(10)
-    qbt_client.torrents_resume(newTorrentHash)
-    qbt_client.torrents_reannounce(torrent_hashes = newTorrentHash)
+    try:
+        start_torrent_list = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
+        with open(torrent_path, 'rb') as f:
+            torrent_content = f.read()
+        # 一开始就暂停下载，方便改名字
+        qbt_client.torrents_add(torrent_files = torrent_content,
+                                savepath = save_path,
+                                is_paused = True)
+        await asyncio.sleep(2)
+        end_torrent_list = {torrent.hash: torrent for torrent in qbt_client.torrents_info()}
+        # 获取最新添加的torrent
+        new_torrents = set(end_torrent_list) - set(start_torrent_list)
+        torrent_hash = new_torrents.pop()
+        # 重命名qbittorrent里的种子名
+        qbt_client.torrents_rename(torrent_hash = torrent_hash, new_torrent_name = dir_name)
+        # 更改文件名
+        files = qbt_client.torrents_files(torrent_hash = torrent_hash)
+        if dir_name[-1] == '/':
+            dir_name = dir_name[:-1]
+        new_file_name = f'{dir_name}/{file_name}.{files[0].name.split(".")[-1]}'
+        qbt_client.torrents_rename_file(torrent_hash = torrent_hash, file_id = 0,
+                                        new_file_name = new_file_name)
+        qbt_client.torrents_add_tags(torrent_hashes = torrent_hash, tags = tag)
+        # 重新检查文件是否下载完成
+        qbt_client.torrents_recheck(torrent_hash)
+        await asyncio.sleep(10)
+        # 继续下载
+        qbt_client.torrents_resume(torrent_hash)
+        qbt_client.torrents_reannounce(torrent_hashes = torrent_hash)
+        RssItemTable.change_rss_item_hash(mikan_url, torrent_hash)
+        remove_file(torrent_path)
+    except Exception as e:
+        error_str = str(e)

@@ -22,7 +22,7 @@ async def download_file(url, dir_path, retries = 3, timeout = 10):
     clientTimeout = aiohttp.ClientTimeout(total = timeout)
     async with aiohttp.ClientSession(timeout = clientTimeout) as session:
         filename = os.path.basename(urlparse(url).path)
-        file_path = os.path.join(dir_path, filename)
+        file_path = f'{dir_path}/{filename}'
         try:
             async with session.get(url, proxy = proxy, ssl = False) as resp:
                 if resp.status == 200:

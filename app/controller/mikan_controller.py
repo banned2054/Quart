@@ -1,12 +1,15 @@
 import feedparser
 
 from app import config
+from app.models.mikan_rss_info import RssItemInfo
 from app.models.sql import BangumiTable, RssItemTable
 from app.utils.log_utils import set_up_logger
 from app.utils.net_utils import download_file, fetch
 from app.utils.parser.bangumi_parser import get_subject_info
 from app.utils.parser.mikan_parser import get_anime_home_url_from_mikan, get_bangumi_url_from_mikan
-from app.utils.parser.title_parser import get_episode, get_subtitle_language, get_title
+from app.utils.parser.title_parser import get_episode, get_subtitle_language, get_title, \
+    universal_replace_name
+from app.utils.qbittorrent_utils import download_one_file
 from app.utils.time_utils import datetime_to_str, str_to_datetime
 
 logger = set_up_logger(__name__)
@@ -72,10 +75,11 @@ async def add_item_when_bangumi_dont_have(item):
     anime_info = await get_subject_info(bangumi_id)
     if anime_info is None:
         return
-    item_name = get_file_name(anime_info, episode)
+    item_name = universal_replace_name("file_name", anime_info, episode)
     pub_date = datetime_to_str(str_to_datetime(item['published']))
-    await download_torrent(item)
-    RssItemTable.insert_rss_data(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date)
+    item_info = RssItemInfo(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date, 0)
+    await qbittorrent_controller(item, anime_info, item_info)
+    RssItemTable.insert_rss_data(item_info)
     if BangumiTable.check_anime_exists(bangumi_id):
         return
     BangumiTable.insert_bangumi_data(anime_info.id,
@@ -83,8 +87,8 @@ async def add_item_when_bangumi_dont_have(item):
                                      anime_info.image_url,
                                      anime_info.origin_name,
                                      anime_info.cn_name,
-                                     anime_info.pub_date,
-                                     anime_info.now_type.value)
+                                     anime_info.now_type.value,
+                                     anime_info.pub_date)
 
 
 async def add_item_when_bangumi_have(item, bangumi_id):
@@ -93,68 +97,13 @@ async def add_item_when_bangumi_have(item, bangumi_id):
     episode = get_episode(item_title)
     mikan_url = item["link"].split('https://mikanani.me/Home/Episode/')[-1]
     anime_info = BangumiTable.get_anime_info_by_id(bangumi_id)
-    item_name = get_file_name(anime_info, episode)
+    if not anime_info[0]:
+        return
+    item_name = universal_replace_name("file_name", anime_info[1], episode)
     pub_date = datetime_to_str(str_to_datetime(item['published']))
-    await download_torrent(item)
-    RssItemTable.insert_rss_data(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date)
-
-
-def get_file_name(anime_info, episode):
-    """
-    :param  BangumiSubjectInfo anime_info:
-    :param int episode:
-    :return:
-    """
-    # 提取年、月、日
-    year = anime_info.pub_date.year
-    month = anime_info.pub_date.month
-    day = anime_info.pub_date.day
-
-    # 格式化月和日，位数不足用0填充
-    year_str = str(year)
-    month_str = f"{month:02d}"
-    day_str = f"{day:02d}"
-
-    episode_str = f"{episode:02d}"
-
-    name = config.get_config('file_name')
-    name = name.replace('/cn_name/', anime_info.cn_name)
-    name = name.replace('/origin_name/', anime_info.origin_name)
-    name = name.replace('/id/', str(anime_info.id))
-    name = name.replace('/type/', anime_info.now_type.name)
-    name = name.replace('/year/', year_str)
-    name = name.replace('/month/', month_str)
-    name = name.replace('/day/', day_str)
-    name = name.replace('/episode/', episode_str)
-    name = name.replace('/platform/', str(anime_info.platform))
-    return name
-
-
-def get_dir_name(anime_info):
-    """
-    :param  BangumiSubjectInfo anime_info:
-    :return:
-    """
-    # 提取年、月、日
-    year = anime_info.pub_date.year
-    month = anime_info.pub_date.month
-    day = anime_info.pub_date.day
-
-    # 格式化月和日，位数不足用0填充
-    year_str = str(year)
-    month_str = f"{month:02d}"
-    day_str = f"{day:02d}"
-
-    name = config.get_config('dir_name')
-    name = name.replace('/cn_name/', anime_info.cn_name)
-    name = name.replace('/origin_name/', anime_info.origin_name)
-    name = name.replace('/id/', str(anime_info.id))
-    name = name.replace('/type/', anime_info.now_type.name)
-    name = name.replace('/year/', year_str)
-    name = name.replace('/month/', month_str)
-    name = name.replace('/day/', day_str)
-    name = name.replace('/platform/', str(anime_info.platform))
-    return name
+    item_info = RssItemInfo(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date, 0)
+    await qbittorrent_controller(item, anime_info[1], item_info)
+    RssItemTable.insert_rss_data(item_info)
 
 
 async def download_torrent(item):
@@ -165,7 +114,28 @@ async def download_torrent(item):
         torrent_url = enclosure['href']
         response = await download_file(torrent_url, 'download')
         if not response[0]:
+            logger.error(f'下载torrent文件失败: {response[1]}')
             return False, response[1]
         torrent_path = response[1]
+        logger.info(f'下载torrent文件, 路径:{torrent_path}')
         return True, torrent_path
     return False, '没有torrent链接'
+
+
+async def qbittorrent_controller(item, anime_info, item_info):
+    """
+    :param item:
+    :param BangumiSubjectInfo anime_info:
+    :param RssItemInfo item_info:
+    :return:
+    """
+    torrent_path = await download_torrent(item)
+    if not torrent_path[0]:
+        return torrent_path
+    if anime_info.now_type.value == 2:
+        save_path = f"{config.get_config('download_path')}/{config.get_config('anime_path')}"
+    else:
+        save_path = f"{config.get_config('download_path')}/{config.get_config('tokusatsu_path')}"
+    dir_name = universal_replace_name("dir_name", anime_info)
+    file_name = universal_replace_name("file_name", anime_info, item_info.episode)
+    await download_one_file(torrent_path[1], save_path, dir_name, file_name, 'mikan', item_info.mikan_url)

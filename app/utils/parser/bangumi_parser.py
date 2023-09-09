@@ -70,7 +70,7 @@ async def get_subject_info(subject_id):
         cn_name = subject_dict['name_cn']
         pub_date = datetime.strptime(subject_dict['date'], "%Y-%m-%d").date()
         anime_type = BangumiType(subject_dict['type'])
-        subject_info = BangumiSubjectInfo(subject_id, platform, image_url, origin_name, cn_name, pub_date, anime_type)
+        subject_info = BangumiSubjectInfo(subject_id, platform, image_url, origin_name, cn_name, anime_type, pub_date)
         logger.info(f'Get anime info, subject id:{subject_id}, cn_name:{cn_name}, pub_date:{pub_date}')
         return subject_info
     else:

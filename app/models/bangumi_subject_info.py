@@ -15,5 +15,5 @@ class BangumiSubjectInfo:
     image_url: str
     origin_name: str
     cn_name: str
-    pub_date: date
     now_type: BangumiType
+    pub_date: date

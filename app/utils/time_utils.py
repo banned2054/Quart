@@ -22,3 +22,12 @@ def datetime_to_str(time_datetime):
     :return str: str格式的时间
     """
     return time_datetime.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+
+def str_to_date(date_str):
+    """
+    从str格式的时间转换成date
+    :param str date_str: str格式的时间
+    :return date: date格式的时间
+    """
+    return datetime.strptime(date_str, '%Y-%m-%d').date()

@@ -3,8 +3,6 @@ import threading
 
 from app import config
 from app.controller.mikan_controller import fresh_rss
-from app.models.sql import BangumiTable
-from app.utils.parser.bangumi_parser import get_subject_info
 
 
 def thread_function():

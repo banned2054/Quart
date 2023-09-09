@@ -2,6 +2,7 @@ import sqlite3
 
 from app.models.bangumi_subject_info import BangumiSubjectInfo, BangumiType
 from app.models.sql.universal_sql_function import create_table_if_not_exists
+from app.utils.time_utils import str_to_date
 
 
 class BangumiTable:
@@ -67,8 +68,8 @@ class BangumiTable:
                                         results[0][2],
                                         results[0][3],
                                         results[0][4],
-                                        results[0][5],
-                                        BangumiType(results[0][6]))
+                                        BangumiType(results[0][5]),
+                                        str_to_date(results[0][6]))
             return True, result
         else:
             return False, None

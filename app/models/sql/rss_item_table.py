@@ -31,7 +31,7 @@ class RssItemTable:
         create_table_if_not_exists(table_schema)
 
     @staticmethod
-    def insert_rss_data(item_name, anime_name, origin_name, mikan_url, bangumi_id, episode, pub_date):
+    def insert_rss_data(item_info):
         database_path = 'data/anime.db'
         RssItemTable.create_rss_table_if_not_exists()
         conn = sqlite3.connect(database_path)
@@ -48,9 +48,16 @@ class RssItemTable:
                                                         pub_date, 
                                                         download_finish
                                                     )
-                                values (?, ?, ?, ?, ?, ?, ?)
+                                values (?, ?, ?, ?, ?, ?, ?, ?, ?)
                             ''',
-                       (item_name, anime_name, origin_name, mikan_url, "", bangumi_id, episode, pub_date, 0))
+                       (item_info.item_name,
+                        item_info.anime_name,
+                        item_info.origin_name,
+                        item_info.mikan_url, "",
+                        item_info.bangumi_id,
+                        item_info.episode,
+                        item_info.pub_date,
+                        0))
         conn.commit()
         conn.close()
 

@@ -1,5 +1,6 @@
 import re
 
+from app import config
 from app.utils.log_utils import set_up_logger
 
 logger = set_up_logger(__name__)
@@ -91,3 +92,42 @@ def get_episode(origin_title):
         episode = int(match_obj.group(2))
         return episode
     return -1
+
+
+def universal_replace_name(target, anime_info, episode = None):
+    """
+    :param str target:
+    :param BangumiSubjectInfo anime_info:
+    :param float episode:
+    :return:
+    """
+    name = config.get_config(target)
+    if name.__contains__("/year/"):
+        year = anime_info.pub_date.year
+        year_str = str(year)
+        name = name.replace('/year/', year_str)
+    if name.__contains__("/month/"):
+        month = anime_info.pub_date.month
+        month_str = str(month)
+        name = name.replace('/month/', month_str)
+    if name.__contains__("/day/"):
+        day = anime_info.pub_date.day
+        day_str = str(day)
+        name = name.replace('/month/', day_str)
+    if name.__contains__("/episode/") and episode is not None:
+        # 分解 episode 为整数部分和小数部分
+        int_part = int(episode)
+        frac_part = episode - int_part
+
+        # 格式化整数部分和小数部分
+        if frac_part == 0:
+            episode_str = f"{int_part:02d}"
+        else:
+            episode_str = f"{int_part:02d}.{int(frac_part * 10)}"  # 假设小数部分只有一位
+        name = name.replace('/episode/', episode_str)
+    name = name.replace('/cn_name/', anime_info.cn_name)
+    name = name.replace('/origin_name/', anime_info.origin_name)
+    name = name.replace('/id/', str(anime_info.id))
+    name = name.replace('/type/', anime_info.now_type.name)
+    name = name.replace('/platform/', str(anime_info.platform))
+    return name
