@@ -16,7 +16,10 @@ echo "{
     \"qbittorrent_password\":\"${qbittorrent_password:-adminadmin}\",
     \"subtitle_language\":\"${subtitle_language:-zh-sc}\",
     \"file_name\": \"${file_name:-/cn_name/ E/episode/}\",
-    \"dir_name\":\"${dir_name:-[/year/./month/]/cn_name/}\"
+    \"dir_name\":\"${dir_name:-[/year/./month/]/cn_name/}\",
+    \"anime_path\": \"${anime_path:-Anime}\",
+    \"tokusatsu_path\": \"${tokusatsu_path:-Tokusatsu}\",
+    \"qbittorrent_name\": \"${[/type/]/cn_name/ E/episode/}\"
 }" >data/config.json
 
 python3 main.py

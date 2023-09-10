@@ -1,3 +1,5 @@
+import traceback
+
 import feedparser
 
 from app import config
@@ -30,7 +32,10 @@ async def fresh_rss():
             await item_analysis(item)
     except Exception as e:
         error_str = str(e)
-        logger.error(f"Try to fresh rss failed: {error_str}")
+        tb = traceback.extract_tb(e.__traceback__)
+        filename = tb[-1].filename
+        lineno = tb[-1].lineno
+        logger.error(f"Try to fresh rss failed: {error_str}; file name: {filename}, line: {lineno}")
         return False, error_str
 
 
@@ -44,6 +49,8 @@ async def item_analysis(item):
         return
 
     origin_title = get_title(item_title)
+    if origin_title == "":
+        return
     mikan_url = item["link"].split('https://mikanani.me/Home/Episode/')[-1]
 
     # 数据库中已经有该种子信息
@@ -107,6 +114,10 @@ async def add_item_when_bangumi_have(item, bangumi_id):
 
 
 async def download_torrent(item):
+    """
+    :param item:
+    :return tuple[bool,str]:
+    """
     for enclosure in item.enclosures:
         # 检查是否为 .torrent 链接
         if enclosure.type != "application/x-bittorrent":

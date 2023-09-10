@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 
 import qbittorrentapi
 
@@ -8,7 +9,7 @@ from app.utils.file_utils import remove_file
 from app.utils.log_utils import set_up_logger
 
 qbt_client = qbittorrentapi.Client(host = config.get_config("qbittorrent_url"),
-                                   username = config.get_config("qbittorrent_name"),
+                                   username = config.get_config("qbittorrent_username"),
                                    password = config.get_config("qbittorrent_password"))
 logger = set_up_logger(__name__)
 
@@ -80,3 +81,7 @@ async def download_one_file(torrent_path, save_path, dir_name, file_name, tag, m
         remove_file(torrent_path)
     except Exception as e:
         error_str = str(e)
+        tb = traceback.extract_tb(e.__traceback__)
+        filename = tb[-1].filename
+        lineno = tb[-1].lineno
+        logger.error(f"Try to add qbittorrent torrent failed: {error_str}; file name: {filename}, line: {lineno}")

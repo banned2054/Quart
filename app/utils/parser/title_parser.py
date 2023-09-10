@@ -8,14 +8,14 @@ logger = set_up_logger(__name__)
 RULES = [
     r"(.*) - (\d{1,4}(?!\d|p)|\d{1,4}\.\d{1,2}(?!\d|p))(?:v\d{1,2})?(?: )?(?:END)?(.*)",
     r"(.*)[\[\ E](\d{1,4}|\d{1,4}\.\d{1,2})(?:v\d{1,2})?(?: )?(?:END)?[\]\ ](.*)",
-    r"(.*)\[(?:第)?(\d*\.*\d*)[话集話](?:END)?\](.*)",
-    r"(.*)第?(\d*\.*\d*)[话話集](?:END)?(.*)",
+    r"(.*)\[(?:第)?(\d+|\d+\.\d+)[话集話](?:END)?\](.*)",
+    r"(.*)第?(\d+|\d+\.\d+)[话話集](?:END)?(.*)",
     r"(.*)(?:S\d{2})?EP?(\d+)(.*)",
 ]
 
 SUBTITLE_LANG = {
     "zh-tc"       : ["tc", "cht", "繁体", "繁日", "繁中", "zh-tw", "big5"],
-    "zh-sc"       : ["sc", "chs", "简体", "简日", "简中", "zh"],
+    "zh-sc"       : ["sc", "chs", "简体", "简日", "简中", "zh", 'gb'],
     "zh-sc-and-tc": ["繁简", "简繁"]
 }
 
@@ -36,10 +36,12 @@ def clear_title(origin_title):
     result = re.sub(r' ★\d{2}月新番★ ', '', origin_title)
     result = re.sub(r' ★\d{2}月新番★', '', result)
     result = re.sub(r'★\d{2}月新番★', '', result)
+    result = re.sub(r'★\d月新番', '', result)
     result = result.replace('[招募翻译]', '')
     result = result.replace('（急招校对、后期）', '')
+    result = result.replace('（字幕社招人内详）', '')
     result = result.replace('[MP4]', '')
-
+    result = result.replace('MP4', '')
     return result
 
 
@@ -62,12 +64,13 @@ def get_title(origin_title):
     :param str origin_title: item的name
     :return str: 动画的文件名
     """
-    cleared_title = clear_title(origin_title)
+    contains_list = config.get_config('contain_filter').split('|')
+    for contain_word in contains_list:
+        if not origin_title.lower().__contains__(contain_word):
+            return ""
     for rule in RULES:
-        if not cleared_title:
-            continue
-        match_obj = re.match(rule, cleared_title, re.I)
-        if not match_obj:
+        match_obj = re.match(rule, origin_title, re.I)
+        if not match_obj or match_obj.group(1) == '':
             continue
         origin_title = get_title_first_step(match_obj.group(1)).strip()
         title = origin_title.split('/')[0]
@@ -88,6 +91,8 @@ def get_episode(origin_title):
             continue
         match_obj = re.match(rule, cleared_title, re.I)
         if not match_obj:
+            continue
+        if match_obj.group(2) == '':
             continue
         episode = int(match_obj.group(2))
         return episode
