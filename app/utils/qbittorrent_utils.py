@@ -38,7 +38,7 @@ def is_torrent_complete_and_matching(torrent_hash, expected_name):
         return False, "Other error"
 
 
-async def download_one_file(torrent_path, save_path, dir_name, file_name, tag, mikan_url):
+async def download_one_file(torrent_path, new_torrent_name, save_path, dir_name, file_name, tag, item_info):
     """
     添加种子到qbittorrent
     :param str torrent_path: torrent文件的路径
@@ -62,7 +62,7 @@ async def download_one_file(torrent_path, save_path, dir_name, file_name, tag, m
         new_torrents = set(end_torrent_list) - set(start_torrent_list)
         torrent_hash = new_torrents.pop()
         # 重命名qbittorrent里的种子名
-        qbt_client.torrents_rename(torrent_hash = torrent_hash, new_torrent_name = dir_name)
+        qbt_client.torrents_rename(torrent_hash = torrent_hash, new_torrent_name = new_torrent_name)
         # 更改文件名
         files = qbt_client.torrents_files(torrent_hash = torrent_hash)
         if dir_name[-1] == '/':
@@ -77,7 +77,7 @@ async def download_one_file(torrent_path, save_path, dir_name, file_name, tag, m
         # 继续下载
         qbt_client.torrents_resume(torrent_hash)
         qbt_client.torrents_reannounce(torrent_hashes = torrent_hash)
-        RssItemTable.change_rss_item_hash(mikan_url, torrent_hash)
+        RssItemTable.insert_rss_data(item_info, torrent_hash)
         remove_file(torrent_path)
     except Exception as e:
         error_str = str(e)

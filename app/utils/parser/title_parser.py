@@ -109,15 +109,15 @@ def universal_replace_name(target, anime_info, episode = None):
     name = config.get_config(target)
     if name.__contains__("/year/"):
         year = anime_info.pub_date.year
-        year_str = str(year)
+        year_str = f"{year:04d}"
         name = name.replace('/year/', year_str)
     if name.__contains__("/month/"):
         month = anime_info.pub_date.month
-        month_str = str(month)
+        month_str = f"{month:02d}"
         name = name.replace('/month/', month_str)
     if name.__contains__("/day/"):
         day = anime_info.pub_date.day
-        day_str = str(day)
+        day_str = f"{day:02d}"
         name = name.replace('/month/', day_str)
     if name.__contains__("/episode/") and episode is not None:
         # 分解 episode 为整数部分和小数部分

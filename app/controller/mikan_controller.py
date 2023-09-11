@@ -110,7 +110,6 @@ async def add_item_when_bangumi_have(item, bangumi_id):
     pub_date = datetime_to_str(str_to_datetime(item['published']))
     item_info = RssItemInfo(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date, 0)
     await qbittorrent_controller(item, anime_info[1], item_info)
-    RssItemTable.insert_rss_data(item_info)
 
 
 async def download_torrent(item):
@@ -149,4 +148,6 @@ async def qbittorrent_controller(item, anime_info, item_info):
         save_path = f"{config.get_config('download_path')}/{config.get_config('tokusatsu_path')}"
     dir_name = universal_replace_name("dir_name", anime_info)
     file_name = universal_replace_name("file_name", anime_info, item_info.episode)
-    await download_one_file(torrent_path[1], save_path, dir_name, file_name, 'mikan', item_info.mikan_url)
+    new_torrent_name = universal_replace_name("qbittorrent_name", anime_info, item_info.episode)
+    await download_one_file(torrent_path[1], new_torrent_name, save_path, dir_name, file_name, 'mikan',
+                            item_info)
