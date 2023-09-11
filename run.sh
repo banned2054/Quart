@@ -12,14 +12,15 @@ echo "{
     \"TZ\": \"${TZ:-Asia/ShangHai}\",
     \"IntervalTimeToRss\":\"${IntervalTimeToRss:-300}\",
     \"qbittorrent_url\":\"${qbittorrent_url:-http://localhost:8080}\",
-    \"qbittorrent_name\":\"${qbittorrent_name:-admin}\",
+    \"qbittorrent_username\":\"${qbittorrent_username:-admin}\",
     \"qbittorrent_password\":\"${qbittorrent_password:-adminadmin}\",
     \"subtitle_language\":\"${subtitle_language:-zh-sc}\",
     \"file_name\": \"${file_name:-/cn_name/ E/episode/}\",
     \"dir_name\":\"${dir_name:-[/year/./month/]/cn_name/}\",
     \"anime_path\": \"${anime_path:-Anime}\",
     \"tokusatsu_path\": \"${tokusatsu_path:-Tokusatsu}\",
-    \"qbittorrent_name\": \"${[/type/]/cn_name/ E/episode/}\"
+    \"qbittorrent_name\": \"${qbittorrent_name:-[/type/]/cn_name/ E/episode/}\",
+    \"contain_filter\": \"${contain_filter:-1080p}\"
 }" >data/config.json
 
 python3 main.py
