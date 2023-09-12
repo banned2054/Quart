@@ -4,3 +4,4 @@ log/*.log
 data/*.json
 test.sh
 *.torrent
+CopyToImage.py

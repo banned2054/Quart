@@ -1,4 +1,5 @@
 import os
+import traceback
 from urllib.parse import urlparse
 
 import aiohttp
@@ -57,20 +58,25 @@ async def fetch(url, headers = None, retries = 3, timeout = 10):
     """
     proxy = config.get_config('proxy_url')
     clientTimeout = aiohttp.ClientTimeout(total = timeout)
-    async with aiohttp.ClientSession(timeout = clientTimeout) as session:
-        try:
-            async with session.get(url, headers = headers, proxy = proxy, ssl = False) as resp:
-                if resp.status == 200:
-                    text = await resp.text()
-                    logger.info(f"Fetch {url} success.")
-                    return True, f"{text}"
+
+    while retries > 0:
+        async with aiohttp.ClientSession(timeout = clientTimeout) as session:
+            try:
+                async with session.get(url, headers = headers, proxy = proxy, ssl = False) as resp:
+                    if resp.status == 200:
+                        text = await resp.text()
+                        logger.info(f"Fetch {url} success.")
+                        return True, f"{text}"
+                    else:
+                        raise Exception(f"Cannot fetch data, status code: {resp.status}")
+            except Exception as e:
+                retries -= 1
+                if retries == 0:
+                    error_str = str(e)
+                    tb = traceback.extract_tb(e.__traceback__)
+                    filename = tb[-1].filename
+                    lineno = tb[-1].lineno
+                    logger.error(f"Failed to fetch {url}, error: {error_str}; file name: {filename}, line: {lineno}")
+                    return False, f"Fetch data failed, error: {error_str}"
                 else:
-                    raise Exception(f"Cannot fetch data, status code: {resp.status}")
-        except Exception as e:
-            if retries > 0:
-                logger.error(f"Failed to fetch {url}, try again.")
-                return await fetch(url, headers, retries - 1, timeout)
-            else:
-                error_str = str(e)
-                logger.error(f"Failed to fetch {url}, error: {error_str}")
-                return False, f"Fetch data failed, error: {error_str}"
+                    logger.error(f"Failed to fetch {url}, try again.")
