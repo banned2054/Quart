@@ -23,4 +23,11 @@ echo "{
     \"contain_filter\": \"${contain_filter:-1080p}\"
 }" >data/config.json
 
+echo "{
+    \"User-Agent\": \"banned/Anime-Qbittorrent/1.0 (https://github.com/banned2054/Anime-Qbittorrent)\",
+    \"Authorization\": \"Bearer L3vSstjEQ4xeUXSPRLSFK7vQ3EzFkhkslLquYfev\",
+    \"Cookie\": \"chii_sec_id=LjHxKm1moAnfYrO5oxPYAf0sqkm5aBAa1FeJaqk\"
+
+}" >data/setting.json
+
 python3 main.py

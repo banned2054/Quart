@@ -3,16 +3,21 @@ import os
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 
+import pytz
+
 from app import config
 
 
 class TimeZoneFilter(logging.Filter):
     def __init__(self, tz):
         super().__init__()
-        self.tz = tz
+        self.tz = pytz.timezone(tz)  # Convert string to timezone object
 
     def filter(self, record):
-        record.tzname = self.tz
+        print("TimeZoneFilter is being called!")  # Add this line for debugging
+        # Convert the record's timestamp to the desired timezone
+        dt = datetime.fromtimestamp(record.created, tz = pytz.utc).astimezone(self.tz)
+        record.asctime = dt.strftime('%Y-%m-%d %H:%M:%S')
         return True
 
 
@@ -28,7 +33,6 @@ def set_up_logger(logger_name, loglevel = logging.INFO):
     logger = logging.getLogger(logger_name)  # Change here
     logger.setLevel(loglevel)
 
-    # Create handlers
     c_handler = logging.StreamHandler()
     f_handler = TimedRotatingFileHandler(logfile, when = 'midnight', encoding = 'utf-8')  # Added encoding='utf-8'
     c_handler.setLevel(loglevel)
@@ -41,7 +45,8 @@ def set_up_logger(logger_name, loglevel = logging.INFO):
     f_handler.setFormatter(f_format)
 
     tz_filter = TimeZoneFilter(config.get_config("TZ"))
-    logger.addFilter(tz_filter)
+    c_handler.addFilter(tz_filter)
+    f_handler.addFilter(tz_filter)
 
     # Add handlers to the logger
     logger.addHandler(c_handler)
