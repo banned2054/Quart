@@ -86,7 +86,6 @@ async def add_item_when_bangumi_dont_have(item):
     pub_date = datetime_to_str(str_to_datetime(item['published']))
     item_info = RssItemInfo(item_name, origin_title, item_title, mikan_url, bangumi_id, episode, pub_date, 0)
     await qbittorrent_controller(item, anime_info, item_info)
-    RssItemTable.insert_rss_data(item_info)
     if BangumiTable.check_anime_exists(bangumi_id):
         return
     BangumiTable.insert_bangumi_data(anime_info.id,
