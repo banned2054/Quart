@@ -4,6 +4,7 @@ import multiprocessing
 from app import config
 from app.controller.mikan_controller import fresh_rss
 from app.controller.sanic import sanic_server
+from app.utils.qbittorrent_utils import set_finish_setting
 
 
 def process_async_loop_function():
@@ -13,6 +14,7 @@ def process_async_loop_function():
 
 
 async def infinite_loop_coroutine():
+    await set_finish_setting()
     sleep_time = int(config.get_config('IntervalTimeToRss'))
     if sleep_time <= 0:
         sleep_time = 1

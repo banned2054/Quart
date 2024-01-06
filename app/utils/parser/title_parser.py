@@ -29,20 +29,21 @@ def get_subtitle_language(subtitle_name: str) -> str:
 
 def clear_title(origin_title):
     """
-    清理例如'★07月新番★'的多余的文字，减少匹配难度
-    :param str origin_title: 原始语句
-    :return str: 清洁后的语句
+    清理标题中的特定模式，保留重要信息
+    :param str origin_title: 原始标题
+    :return str: 清洁后的标题
     """
-    result = re.sub(r' ★\d{2}月新番★ ', '', origin_title)
-    result = re.sub(r' ★\d{2}月新番★', '', result)
-    result = re.sub(r'★\d{2}月新番★', '', result)
-    result = re.sub(r'★\d月新番', '', result)
-    result = result.replace('[招募翻译]', '')
-    result = result.replace('（急招校对、后期）', '')
-    result = result.replace('（字幕社招人内详）', '')
-    result = result.replace('[MP4]', '')
-    result = result.replace('MP4', '')
-    return result
+    # 移除不需要的模式
+    patterns = [
+        r'★\d{1,2}月新番★',
+        r'\[招募.*?\]'
+    ]
+
+    # 合并模式并编译正则表达式
+    pattern = re.compile('|'.join(patterns))
+    result = pattern.sub('', origin_title)
+
+    return result.strip()
 
 
 def get_title_first_step(origin_title):

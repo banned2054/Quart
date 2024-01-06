@@ -3,3 +3,5 @@ lxml
 qbittorrent-api
 feedparser
 pytz
+bencodepy
+sanic

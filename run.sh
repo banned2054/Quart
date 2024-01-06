@@ -20,7 +20,9 @@ echo "{
     \"anime_path\": \"${anime_path:-Anime}\",
     \"tokusatsu_path\": \"${tokusatsu_path:-Tokusatsu}\",
     \"qbittorrent_name\": \"${qbittorrent_name:-[/type/]/cn_name/ E/episode/}\",
-    \"contain_filter\": \"${contain_filter:-1080p}\"
+    \"contain_filter\": \"${contain_filter:-1080p}\",
+    \"my_url\": \"${my_url:-http://quart}\",
+    \"web_port\": \"${web_port:-18341}\"
 }" >data/config.json
 
 echo "{
